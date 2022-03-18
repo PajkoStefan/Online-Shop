@@ -7,19 +7,25 @@ const pathHandler = path.join(__dirname, '../', 'views', 'add-product.html');
 // import router
 const router = express.Router();
 
+// 
+const products = [];
+
 // routes
 
 // /admin/add-product => GET / because of filtering
 router.get("/add-product", (req, res, next) => {
-    res.sendFile(pathHandler, err =>{
-        console.log(err);
+    res.render('add-product', {
+        pageTitle: 'Add Product',
+        path: '/admin/add-product'
     });
 });
 
 // /admin/add-product => POST / because of filtering
 router.post("/add-product", (req, res, next) => {
+    products.push({title: req.body.title});
     res.redirect('/');
 });
 
 
-module.exports = router;
+exports.routes = router;
+exports.products = products;

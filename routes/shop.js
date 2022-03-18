@@ -5,6 +5,9 @@ const path = require('path');
 // import helpers
 const rootDir = require('../util/path');
 
+// import the data
+const adminData = require('./admin');
+
 // helpers
 const pathHandler = path.join(rootDir, 'views', 'shop.html');
 
@@ -13,8 +16,11 @@ const router = express.Router();
 
 // routes
 router.get('/', (req, res, next) => {
-    res.sendFile(pathHandler, err => {
-        console.log(err);
+    console.log('shop.js: ', adminData.products);
+    res.render('shop', {
+        pageTitle: 'Shop',
+        path: '/',
+        prods: adminData.products,
     });
 });
 
