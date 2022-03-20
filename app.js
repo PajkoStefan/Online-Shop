@@ -8,7 +8,9 @@ const rootDir = require('./util/path');
 
 // helpers
 const publicPathHandler = path.join(rootDir, 'public');
-const errorPathHandler = path.join(rootDir, 'views', '404.html');
+
+// controllers
+const errorController = require('./controllers/error')
 
 // initialize express
 const app = express();
@@ -18,18 +20,16 @@ app.set('view engine', 'ejs');
 app.set('views', 'views'); 
 
 // routes
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
 
 // handling the routes / order matters / filter routes (1st param)
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-app.use((req, res, next) => {
-    res.status(404).render('404', {pageTitle: 'Page Not Found'});
-});
+app.use(errorController.get404);
 // create and start the server
 app.listen(3000);

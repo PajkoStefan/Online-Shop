@@ -1,31 +1,18 @@
 // import packages
 const express = require('express');
-const path = require('path');
 
-const pathHandler = path.join(__dirname, '../', 'views', 'add-product.html');
+const productsController = require('../controllers/products');
 
 // import router
 const router = express.Router();
 
-// 
-const products = [];
-
 // routes
 
 // /admin/add-product => GET / because of filtering
-router.get("/add-product", (req, res, next) => {
-    res.render('add-product', {
-        pageTitle: 'Add Product',
-        path: '/admin/add-product'
-    });
-});
+router.get("/add-product", productsController.getAddProduct );
 
 // /admin/add-product => POST / because of filtering
-router.post("/add-product", (req, res, next) => {
-    products.push({title: req.body.title});
-    res.redirect('/');
-});
+router.post("/add-product", productsController.postAddProduct);
 
 
-exports.routes = router;
-exports.products = products;
+module.exports = router;
