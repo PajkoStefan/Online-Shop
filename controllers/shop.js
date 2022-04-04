@@ -52,3 +52,8 @@ exports.getCheckout = (req, res, next) => {
         path: '/checkout'
     });
 };
+
+exports.postCart = (req, res, next) => {
+    const productId = req.body.productId;
+    res.redirect('/');
+};
