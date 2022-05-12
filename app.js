@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 // helpers & handlers
 const rootDir = require('./util/path');
 const publicPathHandler = path.join(rootDir, 'public');
+const db = require('./util/database');
 
 // controllers
 const errorController = require('./controllers/error');
@@ -25,6 +26,16 @@ app.use(express.static(publicPathHandler));
 // import routes
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+
+
+db.execute('SELECT * FROM products')
+.then( result => {
+    console.log(result[0]);
+    // console.log(result[1]);
+})
+.catch( err => {
+    console.log(err);
+});
 
 // enable routes
 app.use('/admin', adminRoutes);
