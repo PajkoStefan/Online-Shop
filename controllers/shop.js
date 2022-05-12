@@ -4,33 +4,45 @@ const Cart = require('../models/cart');
 
 
 exports.getIndex = (req, res, next) => {
-    Product.fetchAll(products => {
-        res.render('./shop/index', {
-            pageTitle: 'Shop',
-            path: '/',
-            prods: products
+    Product.fetchAll()
+        .then(([rows, fieldData]) => {
+            res.render('./shop/index', {
+                pageTitle: 'Shop',
+                path: '/',
+                prods: rows
+            });
+        })
+        .catch(err => {
+            console.log(err);
         });
-    });
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll(products => {
-        res.render('./shop/product-list', {
-            pageTitle: 'All Products',
-            path: '/products',
-            prods: products
+    Product.fetchAll()
+        .then(([rows, fieldData]) => {
+            res.render('./shop/product-list', {
+                pageTitle: 'All Products',
+                path: '/products',
+                prods: rows
+            })
         })
-    });
+        .catch(err => {
+            console.log(err);
+        });
 };
 
 exports.getProduct = (req, res, next) => {
     const productId = req.params.productId;
-    Product.findById(productId, product => {
+    Product.findById(productId)
+    .then(([product, fieldData]) => {
         res.render('./shop/product-detail', {
             pageTitle: product.title,
             path: '/products',
-            product: product
+            product: product[0]
         });
+    })
+    .catch(err => {
+        console.log(err);
     });
 };
 
@@ -40,7 +52,7 @@ exports.getCart = (req, res, next) => {
             const cartProducts = [];
             for (product of products) {
                 const cartProductData = cart.products.find(prod => prod.id === product.id);
-                if(cartProductData){
+                if (cartProductData) {
                     cartProducts.push({
                         productData: product,
                         qty: cartProductData.qty
@@ -71,6 +83,17 @@ exports.postCartDeleteProduct = (req, res, next) => {
         Cart.deleteProduct(productId, product.price);
         res.redirect('/cart')
     });
+    // Product.findById(productId)
+    // .then(([product, fieldData]) => {
+    //     res.render('./shop/product-detail', {
+    //         pageTitle: product.title,
+    //         path: '/products',
+    //         product: product
+    //     });
+    // })
+    // .catch(err => {
+    //     console.log(err);
+    // });
 }
 
 exports.getOrders = (req, res, next) => {
