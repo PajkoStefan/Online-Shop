@@ -1,6 +1,5 @@
 const { redirect } = require("express/lib/response");
 const Product = require("../models/product");
-const Cart = require("../models/cart");
 
 exports.getIndex = (req, res, next) => {
   Product.findAll()
@@ -79,6 +78,20 @@ exports.getCart = (req, res, next) => {
     });
 };
 
+exports.getOrders = (req, res, next) => {
+  res.render("./shop/orders", {
+    pageTitle: "Orders",
+    path: "/orders",
+  });
+};
+
+exports.getCheckout = (req, res, next) => {
+  res.render("./shop/checkout", {
+    pageTitle: "Checkout",
+    path: "/checkout",
+  });
+};
+
 exports.postCart = (req, res, next) => {
   const productId = req.body.productId;
   let fetchedCart;
@@ -134,16 +147,34 @@ exports.postCartDeleteProduct = (req, res, next) => {
     });
 };
 
-exports.getOrders = (req, res, next) => {
-  res.render("./shop/orders", {
-    pageTitle: "Orders",
-    path: "/orders",
-  });
-};
-
-exports.getCheckout = (req, res, next) => {
-  res.render("./shop/checkout", {
-    pageTitle: "Checkout",
-    path: "/checkout",
-  });
+exports.postOrder = (req, res, next) => {
+  req.user
+    .getCart()
+    .then((cart) => {
+      return cart.getProducts();
+    })
+    .then((products) => {
+      return req.user
+        .createOrder()
+        .then((order) => {
+          return order.addProducts(
+            products.map((product) => {
+              product.orderItem = {
+                quantity: product.cartItem.quantity,
+              };
+              return product;
+            })
+          );
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    })
+    .then((result) => {
+      res.redirect("/orders");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  // /create-order
 };
