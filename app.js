@@ -11,6 +11,8 @@ const sequelize = require("./util/database");
 // import models
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 // controllers
 const errorController = require("./controllers/error");
@@ -29,13 +31,13 @@ app.use(express.static(publicPathHandler));
 app.use((req, res, next) => {
   // find the user, store it in the request and call next
   User.findByPk(1)
-  .then( user => {
-    req.user = user;
-    next();
-  })
-  .catch(err => {
-    console.log(err);
-  });
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // routes
@@ -50,12 +52,17 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+// Associations
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+
 User.hasMany(Product);
 
+User.hasOne(Cart);
+Cart.belongsTo(User);
+Cart.belongsToMany(Product, {through: CartItem});
+Product.belongsToMany(Cart, {through: CartItem});
 
-
-//sequelize 
+//sequelize
 sequelize
   // .sync({force: true})
   .sync()
@@ -66,7 +73,7 @@ sequelize
   })
   .then((user) => {
     if (!user) {
-      User.create({name: "Stefan", email: "stefansemail@maill.com" });
+      User.create({ name: "Stefan", email: "stefansemail@maill.com" });
     }
     // return Promise.resolve(user);
     return user;
