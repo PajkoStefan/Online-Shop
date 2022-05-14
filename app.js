@@ -8,6 +8,10 @@ const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
 const sequelize = require("./util/database");
 
+// import models
+const Product = require("./models/product");
+const User = require("./models/user");
+
 // controllers
 const errorController = require("./controllers/error");
 
@@ -22,10 +26,23 @@ app.set("views", "views");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
 
+app.use((req, res, next) => {
+  // find the user, store it in the request and call next
+  User.findByPk(1)
+  .then( user => {
+    req.user = user;
+    next();
+  })
+  .catch(err => {
+    console.log(err);
+  });
+});
+
 // routes
 // import routes
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const { setFlagsFromString } = require("v8");
 
 // enable routes
 app.use("/admin", adminRoutes);
@@ -33,11 +50,29 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-//
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasMany(Product);
+
+
+
+//sequelize 
 sequelize
+  // .sync({force: true})
   .sync()
   .then((result) => {
     // console.log(result);
+    // make sure to have at least 1 user //dummy code;
+    return User.findByPk(1);
+  })
+  .then((user) => {
+    if (!user) {
+      User.create({name: "Stefan", email: "stefansemail@maill.com" });
+    }
+    // return Promise.resolve(user);
+    return user;
+  })
+  .then((user) => {
+    console.log(user);
     // create and start the server
     app.listen(3000);
   })
