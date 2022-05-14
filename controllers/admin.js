@@ -10,7 +10,7 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  req.user.getProducts()
     .then((products) => {
       res.render("./admin/products", {
         pageTitle: "Admin Products",
@@ -31,8 +31,13 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect("/");
   }
 
-  Product.findByPk(productId)
-    .then((product) => {
+  req.user
+    .getProducts({ where: { id: productId } })
+    // Product.findByPk(productId)
+    // .then((product) => {
+    //   if (!product) {
+    .then((products) => {
+      const product = products[0];
       if (!product) {
         return res.redirect("/");
       }
@@ -50,13 +55,13 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const reqBody = req.body;
-
-  Product.create({
-    title: reqBody.title,
-    price: reqBody.price,
-    imageUrl: reqBody.imageUrl,
-    description: reqBody.description,
-  })
+  req.user
+    .createProduct({
+      title: reqBody.title,
+      price: reqBody.price,
+      imageUrl: reqBody.imageUrl,
+      description: reqBody.description,
+    })
     .then((result) => {
       console.log("Created Product");
       res.redirect("/admin/products");

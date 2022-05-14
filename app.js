@@ -72,7 +72,7 @@ sequelize
     return user;
   })
   .then((user) => {
-    console.log(user);
+    // console.log(user);
     // create and start the server
     app.listen(3000);
   })
