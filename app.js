@@ -72,6 +72,7 @@ sequelize
     return User.findByPk(1);
   })
   .then((user) => {
+    // user created
     if (!user) {
       User.create({ name: "Stefan", email: "stefansemail@maill.com" });
     }
@@ -79,7 +80,10 @@ sequelize
     return user;
   })
   .then((user) => {
-    // console.log(user);
+    // cart created
+    return user.createCart();
+  })
+  .then(cart => {
     // create and start the server
     app.listen(3000);
   })
