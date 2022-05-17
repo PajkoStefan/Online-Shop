@@ -2,13 +2,17 @@ const res = require("express/lib/response");
 const mongodb = require("mongodb");
 const getDb = require("../util/database").getDb;
 
+const objectIdConvertor = (id) => {
+  return new mongodb.ObjectId(id);
+};
+
 class Product {
   constructor(title, price, description, imageUrl, id) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
-    this._id = new mongodb.ObjectId(id);
+    this._id = objectIdConvertor(id);
   }
 
   save() {
@@ -16,7 +20,9 @@ class Product {
     let dbOp;
     if (this._id) {
       // Update the product
-      dbOp = db.collection('products').updateOne({_id: this._id}, {$set: this})
+      dbOp = db
+        .collection("products")
+        .updateOne({ _id: this._id }, { $set: this });
     } else {
       // create new product
       dbOp = db.collection("products").insertOne(this);
@@ -26,7 +32,7 @@ class Product {
       .then((result) => {
         console.log("Updated Product");
         console.log(result);
-        res.redirect('/admin/products')
+        res.redirect("/admin/products");
       })
       .catch((err) => {
         console.log(err);
@@ -51,7 +57,7 @@ class Product {
     const db = getDb();
     return db
       .collection("products")
-      .find({ _id: mongodb.ObjectId(productId) })
+      .find({ _id: objectIdConvertor(productId) })
       .next()
       .then((product) => {
         console.log(product);
@@ -62,8 +68,17 @@ class Product {
       });
   }
 
-  
-
+  static deleteById(productId) {
+    const db = getDb();
+    return db.collection("products")
+      .deleteOne({ _id: objectIdConvertor(productId) })
+      .then((result) => {
+        console.log("Product Was Deleted!");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 }
 
 module.exports = Product;
