@@ -12,7 +12,7 @@ class Product {
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
-    this._id = objectIdConvertor(id);
+    this._id = id ? objectIdConvertor(id) : null;
   }
 
   save() {
