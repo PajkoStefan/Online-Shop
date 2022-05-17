@@ -2,7 +2,7 @@ const { redirect } = require("express/lib/response");
 const Product = require("../models/product");
 
 exports.getIndex = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then((products) => {
       res.render("./shop/index", {
         pageTitle: "Shop",
@@ -16,7 +16,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then((products) => {
       res.render("./shop/product-list", {
         pageTitle: "All Products",
@@ -31,7 +31,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const productId = req.params.productId;
-  Product.findByPk(productId)
+  Product.findById(productId)
     .then((product) => {
       res.render("./shop/product-detail", {
         pageTitle: product.title,

@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 // helpers & handlers
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
-const mongoConnect = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 
 // controllers
 const errorController = require("./controllers/error");
@@ -32,21 +32,21 @@ app.use((req, res, next) => {
   //   .catch((err) => {
   //     console.log(err);
   //   });
+  next();
 });
 
 // routes
 // // import routes
-// const adminRoutes = require("./routes/admin");
-// const shopRoutes = require("./routes/shop");
+const adminRoutes = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
 // // enable routes
-// app.use("/admin", adminRoutes);
-// app.use(shopRoutes);
+app.use("/admin", adminRoutes);
+app.use(shopRoutes);
 
 app.use(errorController.get404);
 
 // create and start the server
-mongoConnect((client) => {
-  console.log(client);
+mongoConnect(() => {
   app.listen(3000);
 })
