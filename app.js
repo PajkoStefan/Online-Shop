@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
 const mongoConnect = require('./util/database').mongoConnect;
+const User = require('./models/user');
 
 // controllers
 const errorController = require("./controllers/error");
@@ -24,15 +25,15 @@ app.use(express.static(publicPathHandler));
 
 app.use((req, res, next) => {
   // // find the user, store it in the request and call next
-  // User.findByPk(1)
-  //   .then((user) => {
-  //     req.user = user;
-  //     next();
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
-  next();
+  User.findById("62864fb4c3c5fca7206f18ab")
+    .then((user) => {
+      console.log(user);
+      req.user = user;
+      next();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // routes
