@@ -27,8 +27,8 @@ app.use((req, res, next) => {
   // // find the user, store it in the request and call next
   User.findById("62864fb4c3c5fca7206f18ab")
     .then((user) => {
-      console.log(user);
-      req.user = user;
+      // console.log(user);
+      req.user = new User(user.name, user.email, user.cart, user._id);
       next();
     })
     .catch((err) => {

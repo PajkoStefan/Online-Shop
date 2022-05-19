@@ -10,7 +10,7 @@
                         <ul>
                             <% orders.forEach(order=> { %>
                                 <li>
-                                    <h1>Order #<%= order.id %>:</h1>
+                                    <h1>Order #<%= order._id %>:</h1>
                                     <% order.products.forEach((item, index)=> { %>
                                         <ul>
                                             <li>
