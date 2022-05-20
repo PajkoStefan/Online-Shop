@@ -10,7 +10,7 @@ const dotenv = require("dotenv").config();
 // helpers & handlers
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
-// const User = require("./models/user");
+const User = require("./models/user");
 
 // controllers
 const errorController = require("./controllers/error");
@@ -26,18 +26,18 @@ app.set("views", "views");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
 
-// app.use((req, res, next) => {
-  // // find the user, store it in the request and call next
-  // User.findById("62864fb4c3c5fca7206f18ab")
-  //   .then((user) => {
-  //     // console.log(user);
-  //     req.user = new User(user.name, user.email, user.cart, user._id);
-  //     next();
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
-// });
+app.use((req, res, next) => {
+  // find the user, store it in the request and call next
+  User.findById("6287f0e369a8e90df7b017c4")
+    .then((user) => {
+      // console.log(user);
+      req.user = user;
+      next();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 
 // routes
 // // import routes
@@ -56,6 +56,20 @@ mongoose
     `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/shop?retryWrites=true&w=majority`
   )
   .then((result) => {
+    User.findOne()
+      .then((user) => {
+        if (!user) {
+          const user = new User({
+            name: "Stefan",
+            email: "stefan@mail.com",
+            cart: { items: [] },
+          });
+          user.save();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     app.listen(3000);
   })
   .catch((err) => {

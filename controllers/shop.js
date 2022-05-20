@@ -2,7 +2,7 @@ const { redirect } = require("express/lib/response");
 const Product = require("../models/product");
 
 exports.getIndex = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("./shop/index", {
         pageTitle: "Shop",
@@ -16,7 +16,7 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("./shop/product-list", {
         pageTitle: "All Products",
@@ -33,6 +33,7 @@ exports.getProduct = (req, res, next) => {
   const productId = req.params.productId;
   Product.findById(productId)
     .then((product) => {
+      console.log(product);
       res.render("./shop/product-detail", {
         pageTitle: product.title,
         path: "/products",
@@ -42,25 +43,13 @@ exports.getProduct = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
-  //   another approach
-  //   Product.findAll( {where: { id: productId }} )
-  //   .then((products) => {
-  //       res.render("./shop/product-detail", {
-  //         pageTitle: products[0].title,
-  //         path: "/products",
-  //         product: products[0],
-  //       });
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     })
+
 };
 
 exports.getCart = (req, res, next) => {
   req.user
     .getCart()
     .then((cartProducts) => {
-      console.log(cartProducts);
       res.render("shop/cart", {
         pageTitle: "Your Cart",
         path: "/cart",

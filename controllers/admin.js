@@ -10,7 +10,7 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render("./admin/products", {
         pageTitle: "Admin Products",
@@ -72,15 +72,15 @@ exports.postAddProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const productId = req.body.productId;
   const reqBody = req.body;
-  const product = new Product(
-    reqBody.title,
-    reqBody.price,
-    reqBody.description,
-    reqBody.imageUrl,
-    productId
-  );
-  return product
-    .save()
+
+  Product.findById(productId)
+    .then((product) => {
+      product.title = reqBody.title;
+      product.price = reqBody.price;
+      product.description = reqBody.description;
+      product.imageUrl = reqBody.imageUrl;
+      return product.save();
+    })
     .then((result) => {
       console.log("Updated Product!");
       res.redirect("/admin/products");
@@ -88,11 +88,12 @@ exports.postEditProduct = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
+
 };
 
-exports.postDeleteProduct = (req, res, next) => {
+  exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.deleteById(productId)
+  Product.findByIdAndRemove(productId)
     .then((result) => {
       console.log("Destroyed Product!");
       res.redirect("/admin/products");
