@@ -10,7 +10,7 @@ const dotenv = require("dotenv").config();
 // helpers & handlers
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
-const User = require("./models/user");
+// const User = require("./models/user");
 
 // controllers
 const errorController = require("./controllers/error");
@@ -26,7 +26,7 @@ app.set("views", "views");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
 
-app.use((req, res, next) => {
+// app.use((req, res, next) => {
   // // find the user, store it in the request and call next
   // User.findById("62864fb4c3c5fca7206f18ab")
   //   .then((user) => {
@@ -37,7 +37,7 @@ app.use((req, res, next) => {
   //   .catch((err) => {
   //     console.log(err);
   //   });
-});
+// });
 
 // routes
 // // import routes
@@ -53,7 +53,7 @@ app.use(errorController.get404);
 // create and start the server
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/?retryWrites=true&w=majority`
+    `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/shop?retryWrites=true&w=majority`
   )
   .then((result) => {
     app.listen(3000);

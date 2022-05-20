@@ -51,14 +51,12 @@ exports.getEditProduct = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
   const reqBody = req.body;
 
-  const product = new Product(
-    reqBody.title,
-    reqBody.price,
-    reqBody.description,
-    reqBody.imageUrl,
-    null,
-    req.user._id
-  );
+  const product = new Product({
+    title: reqBody.title,
+    price: reqBody.price,
+    description: reqBody.description,
+    imageUrl: reqBody.imageUrl,
+  });
 
   product
     .save()
