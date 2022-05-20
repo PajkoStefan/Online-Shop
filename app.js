@@ -2,12 +2,15 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv").config();
+
+// dotenv.config();
 
 // helpers & handlers
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
-const mongoConnect = require('./util/database').mongoConnect;
-const User = require('./models/user');
+const User = require("./models/user");
 
 // controllers
 const errorController = require("./controllers/error");
@@ -25,15 +28,15 @@ app.use(express.static(publicPathHandler));
 
 app.use((req, res, next) => {
   // // find the user, store it in the request and call next
-  User.findById("62864fb4c3c5fca7206f18ab")
-    .then((user) => {
-      // console.log(user);
-      req.user = new User(user.name, user.email, user.cart, user._id);
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  // User.findById("62864fb4c3c5fca7206f18ab")
+  //   .then((user) => {
+  //     // console.log(user);
+  //     req.user = new User(user.name, user.email, user.cart, user._id);
+  //     next();
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //   });
 });
 
 // routes
@@ -48,6 +51,13 @@ app.use(shopRoutes);
 app.use(errorController.get404);
 
 // create and start the server
-mongoConnect(() => {
-  app.listen(3000);
-})
+mongoose
+  .connect(
+    `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/?retryWrites=true&w=majority`
+  )
+  .then((result) => {
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
