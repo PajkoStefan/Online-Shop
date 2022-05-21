@@ -12,6 +12,7 @@ exports.getAddProduct = (req, res, next) => {
 exports.getProducts = (req, res, next) => {
   Product.find()
     .then((products) => {
+      console.log(products);
       res.render("./admin/products", {
         pageTitle: "Admin Products",
         path: "/admin/products",
@@ -56,6 +57,7 @@ exports.postAddProduct = (req, res, next) => {
     price: reqBody.price,
     description: reqBody.description,
     imageUrl: reqBody.imageUrl,
+    userId: req.user, // or req.user._id
   });
 
   product
@@ -88,10 +90,9 @@ exports.postEditProduct = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
-
 };
 
-  exports.postDeleteProduct = (req, res, next) => {
+exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
   Product.findByIdAndRemove(productId)
     .then((result) => {

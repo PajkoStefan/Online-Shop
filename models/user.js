@@ -15,7 +15,8 @@ const userSchema = new Schema({
     items: [{
         productId: {
             type: Schema.Types.ObjectId,
-            required: true
+            ref: "Product",
+            required: true,
         },
         quantity: { 
             type: Number, 
