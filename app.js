@@ -7,6 +7,7 @@ const dotenv = require("dotenv").config();
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
+const flash = require('connect-flash');
 
 // helpers & handlers
 const rootDir = require("./util/path");
@@ -44,6 +45,7 @@ app.use(
 );
 
 app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
   if (req.session.isLoggedIn) {
