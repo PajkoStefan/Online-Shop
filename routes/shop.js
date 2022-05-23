@@ -1,30 +1,31 @@
 // import packages
-const express = require('express');
-
+const express = require("express");
 
 // controllers
-const shopController = require('../controllers/shop');
+const shopController = require("../controllers/shop");
+
+// middlewares
+const isAuth = require("../middleware/is-auth");
 
 // Router
 const router = express.Router();
 
 // routes
 
-router.get('/', shopController.getIndex);
+router.get("/", shopController.getIndex);
 
-router.get('/products', shopController.getProducts);
+router.get("/products", shopController.getProducts);
 
-router.get('/products/:productId', shopController.getProduct);
+router.get("/products/:productId", shopController.getProduct);
 
-router.get('/cart', shopController.getCart);
+router.get("/cart", isAuth, shopController.getCart);
 
-router.get('/orders', shopController.getOrders);
+router.get("/orders", isAuth, shopController.getOrders);
 
-router.post('/cart', shopController.postCart);
+router.post("/cart", isAuth, shopController.postCart);
 
-router.post('/cart-delete-item', shopController.postCartDeleteProduct);
+router.post("/cart-delete-item", isAuth, shopController.postCartDeleteProduct);
 
-router.post('/create-order', shopController.postOrder);
-
+router.post("/create-order", isAuth, shopController.postOrder);
 
 module.exports = router;
