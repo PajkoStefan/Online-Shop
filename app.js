@@ -41,19 +41,6 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  // find the user, store it in the request and call next
-  User.findById("6287f0e369a8e90df7b017c4")
-    .then((user) => {
-      // console.log(user);
-      req.user = user;
-      next();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
 // routes
 // // import routes
 const adminRoutes = require("./routes/admin");
