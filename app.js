@@ -4,19 +4,26 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv").config();
-const session = require('express-session');
-
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 // helpers & handlers
 const rootDir = require("./util/path");
 const publicPathHandler = path.join(rootDir, "public");
 const User = require("./models/user");
 
+//
+const MONGODB_URI = `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/shop?retryWrites=true&w=majority`;
+
 // controllers
 const errorController = require("./controllers/error");
 
 // initialize express
 const app = express();
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: "sessions",
+});
 
 // set view engine
 app.set("view engine", "ejs");
@@ -25,7 +32,14 @@ app.set("views", "views");
 // enable body parser & static files
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
-app.use(session({secret: 'secretValue', resave: false, saveUninitialized:false}));
+app.use(
+  session({
+    secret: "secretValue",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 app.use((req, res, next) => {
   // find the user, store it in the request and call next
@@ -55,9 +69,7 @@ app.use(errorController.get404);
 
 // create and start the server
 mongoose
-  .connect(
-    `mongodb+srv://${process.env.MDBUSERNAME}:${process.env.MDBPASSWORD}@cluster0.shs4r.mongodb.net/shop?retryWrites=true&w=majority`
-  )
+  .connect(MONGODB_URI)
   .then((result) => {
     User.findOne()
       .then((user) => {
