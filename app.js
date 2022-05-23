@@ -4,8 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv").config();
+const session = require('express-session');
 
-// dotenv.config();
 
 // helpers & handlers
 const rootDir = require("./util/path");
@@ -25,6 +25,7 @@ app.set("views", "views");
 // enable body parser & static files
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(publicPathHandler));
+app.use(session({secret: 'secretValue', resave: false, saveUninitialized:false}));
 
 app.use((req, res, next) => {
   // find the user, store it in the request and call next
