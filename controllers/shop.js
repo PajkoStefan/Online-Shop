@@ -9,7 +9,6 @@ exports.getIndex = (req, res, next) => {
         pageTitle: "Shop",
         path: "/",
         prods: products,
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => {
@@ -67,7 +66,6 @@ exports.getCart = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
   Order.find({ "user.userId": req.session.user._id })
     .then((orders) => {
-      console.log(orders);
       res.render("./shop/orders", {
         pageTitle: "Orders",
         path: "/orders",
@@ -85,7 +83,6 @@ exports.postCart = (req, res, next) => {
 
   Product.findById(productId)
     .then((product) => {
-      console.log(product);
       return req.user.addToCart(product);
     })
     .then((result) => {
