@@ -1,9 +1,19 @@
+const bcrypt = require("bcryptjs");
+
 const User = require("../models/user");
 
 exports.getLogin = (req, res, next) => {
   res.render("./auth/login", {
     pageTitle: "Login",
     path: "/login",
+    isAuthenticated: false,
+  });
+};
+
+exports.getSignUp = (req, res, next) => {
+  res.render("./auth/signup", {
+    pageTitle: "Sign Up",
+    path: "/signup",
     isAuthenticated: false,
   });
 };
@@ -30,4 +40,30 @@ exports.postLogout = (req, res, next) => {
     console.log(err);
     res.redirect("/");
   });
+};
+
+exports.postSignUp = (req, res, next) => {
+  const reqBody = req.body;
+  User.findOne({ email: reqBody.email })
+    .then((userDoc) => {
+      if (userDoc) {
+        return res.redirect("/signup");
+      }
+      return bcrypt
+        .hash(reqBody.password, 12)
+        .then((hashedPassword) => {
+          const user = new User({
+            email: reqBody.email,
+            password: hashedPassword,
+            cart: { items: [] },
+          });
+          return user.save();
+        })
+        .then((result) => {
+          res.redirect("/login");
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };

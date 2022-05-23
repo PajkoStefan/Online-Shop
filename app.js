@@ -42,9 +42,8 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  console.log(req.session.isLoggedIn);
+  req.session.isLoggedIn = false;
   if (req.session.isLoggedIn) {
-    console.log(req.session.user);
     User.findById(req.session.user._id)
       .then((user) => {
         req.user = user;
@@ -53,7 +52,7 @@ app.use((req, res, next) => {
       .catch((err) => {
         console.log(err);
       });
-  } else{
+  } else {
     next();
   }
 });
@@ -75,20 +74,6 @@ app.use(errorController.get404);
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
-    User.findOne()
-      .then((user) => {
-        if (!user) {
-          const user = new User({
-            name: "Stefan",
-            email: "stefan@mail.com",
-            cart: { items: [] },
-          });
-          user.save();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
     app.listen(3000);
   })
   .catch((err) => {
