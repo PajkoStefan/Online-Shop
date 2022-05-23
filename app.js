@@ -42,7 +42,8 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  req.session.isLoggedIn = false;
+  console.log('req.session.isLoggedIn');
+  console.log(req.session.isLoggedIn);
   if (req.session.isLoggedIn) {
     User.findById(req.session.user._id)
       .then((user) => {
