@@ -41,6 +41,23 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  console.log(req.session.isLoggedIn);
+  if (req.session.isLoggedIn) {
+    console.log(req.session.user);
+    User.findById(req.session.user._id)
+      .then((user) => {
+        req.user = user;
+        next();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } else{
+    next();
+  }
+});
+
 // routes
 // // import routes
 const adminRoutes = require("./routes/admin");
