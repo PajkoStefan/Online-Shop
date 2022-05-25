@@ -6,15 +6,14 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: "Add Product",
     path: "/admin/add-product",
     editing: false,
-
   });
 };
 
 exports.getProducts = (req, res, next) => {
-  if(!req.session.isLoggedIn){
-    return res.redirect('/login');
+  if (!req.session.isLoggedIn) {
+    return res.redirect("/login");
   }
-  Product.find()
+  Product.find({ userId: req.user._id })
     .then((products) => {
       res.render("./admin/products", {
         pageTitle: "Admin Products",
@@ -80,15 +79,17 @@ exports.postEditProduct = (req, res, next) => {
 
   Product.findById(productId)
     .then((product) => {
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect("/");
+      }
       product.title = reqBody.title;
       product.price = reqBody.price;
       product.description = reqBody.description;
       product.imageUrl = reqBody.imageUrl;
-      return product.save();
-    })
-    .then((result) => {
-      console.log("Updated Product!");
-      res.redirect("/admin/products");
+      return product.save().then((result) => {
+        console.log("Updated Product!");
+        res.redirect("/admin/products");
+      });
     })
     .catch((err) => {
       console.log(err);
@@ -97,8 +98,11 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
-  Product.findByIdAndRemove(productId)
+  Product.deleteOne({ _id: productId, userId: req.user._id })
     .then((result) => {
+      if (result.deletedCount === 0) {
+        return res.redirect("/");
+      }
       console.log("Destroyed Product!");
       res.redirect("/admin/products");
     })
