@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
@@ -16,6 +17,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAILSENDER_PASS,
   },
 });
+
+const resetURLPath = "http://localhost:3000/reset-password/";
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
@@ -57,7 +60,7 @@ exports.getResetPassword = (req, res, next) => {
     path: "/reset-password",
     errorMessage: message,
   });
-}
+};
 
 exports.postLogin = (req, res, next) => {
   const reqBody = req.body;
@@ -140,4 +143,42 @@ exports.postSignUp = (req, res, next) => {
     .catch((err) => {
       console.log(err);
     });
+};
+
+exports.postResetPassword= (req, res, next) => {
+  crypto.randomBytes(32, (err, buffer) => {
+    console.log("crypto");
+    if (err) {
+      console.log(err);
+      res.redirect("/reset-password");
+    }
+    const token = buffer.toString("hex");
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        console.log(user);
+        if (!user) {
+          req.flash("error", "No account found!");
+          return res.redirect("/reset-password");
+        }
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then((result) => {
+        res.redirect('/');
+        return transporter.sendMail({
+          from: `Stefan Anastasovski 👻 <${process.env.MAILSENDER_EMAIL}>`, // sender address
+          to: req.body.email, // list of receivers
+          subject: "Password Reset ✔", // Subject line
+          text: "Thanks! Your account has been successfully created!", // plain text body
+          html: `
+          <p>You requested a password reset.</p>
+          <p>Click this <a href="${resetURLPath}${token}"> link </a> to set a new password.</p>
+          `, // html body
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 };
