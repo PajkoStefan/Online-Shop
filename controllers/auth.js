@@ -1,6 +1,21 @@
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv").config();
 
 const User = require("../models/user");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp-mail.outlook.com", // hostname
+  secureConnection: false, // TLS requires secureConnection to be false
+  port: 587, // port for secure SMTP
+  tls: {
+    ciphers: "SSLv3",
+  },
+  auth: {
+    user: process.env.MAILSENDER_EMAIL,
+    pass: process.env.MAILSENDER_PASS,
+  },
+});
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
@@ -75,7 +90,10 @@ exports.postSignUp = (req, res, next) => {
   User.findOne({ email: reqBody.email })
     .then((userDoc) => {
       if (userDoc) {
-        req.flash("error", "Email already exists. Please choose a different email.");
+        req.flash(
+          "error",
+          "Email already exists. Please choose a different email."
+        );
         return res.redirect("/signup");
       }
       return bcrypt
@@ -89,7 +107,21 @@ exports.postSignUp = (req, res, next) => {
           return user.save();
         })
         .then((result) => {
+          console.log("here");
           res.redirect("/login");
+          return transporter.sendMail({
+            from: `Stefan Anastasovski 👻 <${process.env.MAILSENDER_EMAIL}>`, // sender address
+            to: reqBody.email, // list of receivers
+            subject: "Your account has been successfully created ✔", // Subject line
+            text: "Thanks! Your account has been successfully created!", // plain text body
+            html: "<b>Thanks! Your account has been successfully created!</b>", // html body
+          });
+        })
+        .then((result) => {
+          console.log("Account has been successfully created");
+        })
+        .catch((err) => {
+          console.log(err);
         });
     })
     .catch((err) => {
