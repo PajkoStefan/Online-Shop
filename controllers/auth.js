@@ -45,6 +45,20 @@ exports.getSignUp = (req, res, next) => {
   });
 };
 
+exports.getResetPassword = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("./auth/reset-password", {
+    pageTitle: "Reset Password",
+    path: "/reset-password",
+    errorMessage: message,
+  });
+}
+
 exports.postLogin = (req, res, next) => {
   const reqBody = req.body;
   User.findOne({ email: reqBody.email })
@@ -107,7 +121,6 @@ exports.postSignUp = (req, res, next) => {
           return user.save();
         })
         .then((result) => {
-          console.log("here");
           res.redirect("/login");
           return transporter.sendMail({
             from: `Stefan Anastasovski 👻 <${process.env.MAILSENDER_EMAIL}>`, // sender address
@@ -118,7 +131,7 @@ exports.postSignUp = (req, res, next) => {
           });
         })
         .then((result) => {
-          console.log("Account has been successfully created");
+          console.log("The account has been successfully created!");
         })
         .catch((err) => {
           console.log(err);
