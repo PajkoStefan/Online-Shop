@@ -46,6 +46,11 @@ exports.getSignUp = (req, res, next) => {
     pageTitle: "Sign Up",
     path: "/signup",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 };
 
@@ -91,7 +96,7 @@ exports.postLogin = (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.render("./auth/login", {
+    return res.status(422).render("./auth/login", {
       pageTitle: "Login",
       path: "/login",
       errorMessage: errors.array()[0].msg,
@@ -145,6 +150,11 @@ exports.postSignUp = (req, res, next) => {
       pageTitle: "Sign Up",
       path: "/signup",
       errorMessage: errors.array()[0].msg,
+      oldInput: {
+        email: reqBody.email,
+        password: reqBody.password,
+        confirmPassword: reqBody.confirmPassword,
+      },
     });
   }
 
