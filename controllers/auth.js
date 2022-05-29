@@ -21,6 +21,19 @@ const transporter = nodemailer.createTransport({
 
 const resetURLPath = "http://localhost:3000/reset-password/";
 
+const redirectToLoginPage = (reqBody, res, errorMsg, validationErrorsParams) => {
+  return res.status(422).render("./auth/login", {
+    pageTitle: "Login",
+    path: "/login",
+    errorMessage: errorMsg,
+    oldInput: {
+      email: reqBody.email,
+      password: reqBody.password,
+    },
+    validationErrors: validationErrorsParams,
+  });
+};
+
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
@@ -32,6 +45,11 @@ exports.getLogin = (req, res, next) => {
     pageTitle: "Login",
     path: "/login",
     errorMessage: message,
+    oldInput: {
+      email: "",
+      password: "",
+    },
+    validationErrors: [],
   });
 };
 
@@ -51,6 +69,7 @@ exports.getSignUp = (req, res, next) => {
       password: "",
       confirmPassword: "",
     },
+    validationErrors: [],
   });
 };
 
@@ -96,18 +115,43 @@ exports.postLogin = (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).render("./auth/login", {
-      pageTitle: "Login",
-      path: "/login",
-      errorMessage: errors.array()[0].msg,
-    });
+    return redirectToLoginPage(
+      reqBody,
+      res,
+      errors.array()[0].msg,
+      errors.array()
+    );
+    // return res.status(422).render("./auth/login", {
+    //   pageTitle: "Login",
+    //   path: "/login",
+    //   errorMessage: errors.array()[0].msg,
+    //   oldInput: {
+    //     email: reqBody.email,
+    //     password: reqBody.password,
+    //   },
+    //   validationErrors: errors.array(),
+    // });
   }
 
   User.findOne({ email: reqBody.email })
     .then((user) => {
       if (!user) {
-        req.flash("error", "Invalid email or password.");
-        return res.redirect("/login");
+        return redirectToLoginPage(
+          reqBody,
+          res,
+          "Invalid email or password.",
+          []
+        );
+        // return res.status(422).render("./auth/login", {
+        //   pageTitle: "Login",
+        //   path: "/login",
+        //   errorMessage: "Invalid email or password.",
+        //   oldInput: {
+        //     email: reqBody.email,
+        //     password: reqBody.password,
+        //   },
+        //   validationErrors: [],
+        // });
       }
 
       bcrypt
@@ -121,8 +165,22 @@ exports.postLogin = (req, res, next) => {
               res.redirect("/");
             });
           }
-          req.flash("error", "Invalid email or password.");
-          res.redirect("/login");
+          return redirectToLoginPage(
+            reqBody,
+            res,
+            "Invalid email or password.",
+            []
+          );
+          // return res.status(422).render("./auth/login", {
+          //   pageTitle: "Login",
+          //   path: "/login",
+          //   errorMessage: "Invalid email or password.",
+          //   oldInput: {
+          //     email: reqBody.email,
+          //     password: reqBody.password,
+          //   },
+          //   validationErrors: [],
+          // });
         })
         .catch((err) => {
           console.log(err);
@@ -155,6 +213,7 @@ exports.postSignUp = (req, res, next) => {
         password: reqBody.password,
         confirmPassword: reqBody.confirmPassword,
       },
+      validationErrors: errors.array(),
     });
   }
 
