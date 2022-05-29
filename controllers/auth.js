@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
+const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
 
@@ -87,6 +88,16 @@ exports.getNewPassword = (req, res, next) => {
 
 exports.postLogin = (req, res, next) => {
   const reqBody = req.body;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.render("./auth/login", {
+      pageTitle: "Login",
+      path: "/login",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
+
   User.findOne({ email: reqBody.email })
     .then((user) => {
       if (!user) {
@@ -127,41 +138,38 @@ exports.postLogout = (req, res, next) => {
 
 exports.postSignUp = (req, res, next) => {
   const reqBody = req.body;
-  User.findOne({ email: reqBody.email })
-    .then((userDoc) => {
-      if (userDoc) {
-        req.flash(
-          "error",
-          "Email already exists. Please choose a different email."
-        );
-        return res.redirect("/signup");
-      }
-      return bcrypt
-        .hash(reqBody.password, 12)
-        .then((hashedPassword) => {
-          const user = new User({
-            email: reqBody.email,
-            password: hashedPassword,
-            cart: { items: [] },
-          });
-          return user.save();
-        })
-        .then((result) => {
-          res.redirect("/login");
-          return transporter.sendMail({
-            from: `Stefan Anastasovski 👻 <${process.env.MAILSENDER_EMAIL}>`, // sender address
-            to: reqBody.email, // list of receivers
-            subject: "Your account has been successfully created ✔", // Subject line
-            text: "Thanks! Your account has been successfully created!", // plain text body
-            html: "<b>Thanks! Your account has been successfully created!</b>", // html body
-          });
-        })
-        .then((result) => {
-          console.log("The account has been successfully created!");
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render("./auth/signup", {
+      pageTitle: "Sign Up",
+      path: "/signup",
+      errorMessage: errors.array()[0].msg,
+    });
+  }
+
+  bcrypt
+    .hash(reqBody.password, 12)
+    .then((hashedPassword) => {
+      const user = new User({
+        email: reqBody.email,
+        password: hashedPassword,
+        cart: { items: [] },
+      });
+      return user.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+      return transporter.sendMail({
+        from: `Stefan Anastasovski 👻 <${process.env.MAILSENDER_EMAIL}>`, // sender address
+        to: reqBody.email, // list of receivers
+        subject: "Your account has been successfully created ✔", // Subject line
+        text: "Thanks! Your account has been successfully created!", // plain text body
+        html: "<b>Thanks! Your account has been successfully created!</b>", // html body
+      });
+    })
+    .then((result) => {
+      console.log("The account has been successfully created!");
     })
     .catch((err) => {
       console.log(err);
