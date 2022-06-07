@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 // import needed classes
 const Product = require("../models/product");
 
@@ -67,7 +68,7 @@ exports.postAddProduct = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res.status(422).render("./admin/edit-product", {
       pageTitle: "Add Product",
-      path: "/admin/edit-product",
+      path: "/admin/add-product",
       editing: false,
       hasError: true,
       product: {
@@ -83,6 +84,7 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   const product = new Product({
+    _id: mongoose.Types.ObjectId('628d877964391c5ee2f4cae9'),
     title: reqBody.title,
     price: reqBody.price,
     description: reqBody.description,
@@ -97,7 +99,7 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      res.redirect('/500');
     });
 };
 
