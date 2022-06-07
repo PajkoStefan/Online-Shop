@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
+const setError = require("../util/error");
+
 // import needed classes
 const Product = require("../models/product");
 
 const { validationResult } = require("express-validator");
-
-const setError = (err) => {
-  const error = new Error(err);
-  error.httpStatusCode = 500;
-  return error;
-};
 
 exports.getAddProduct = (req, res, next) => {
   res.render("./admin/edit-product", {

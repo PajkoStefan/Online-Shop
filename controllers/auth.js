@@ -4,6 +4,8 @@ const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
 const { validationResult } = require("express-validator");
 
+const setError = require("../util/error");
+
 const User = require("../models/user");
 
 const transporter = nodemailer.createTransport({
@@ -21,7 +23,12 @@ const transporter = nodemailer.createTransport({
 
 const resetURLPath = "http://localhost:3000/reset-password/";
 
-const redirectToLoginPage = (reqBody, res, errorMsg, validationErrorsParams) => {
+const redirectToLoginPage = (
+  reqBody,
+  res,
+  errorMsg,
+  validationErrorsParams
+) => {
   return res.status(422).render("./auth/login", {
     pageTitle: "Login",
     path: "/login",
@@ -106,7 +113,7 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
@@ -161,7 +168,7 @@ exports.postLogin = (req, res, next) => {
             req.session.isLoggedIn = true;
             req.session.user = user;
             return req.session.save((err) => {
-              console.log(err);
+              return next(setError(err));
               res.redirect("/");
             });
           }
@@ -183,18 +190,18 @@ exports.postLogin = (req, res, next) => {
           // });
         })
         .catch((err) => {
-          console.log(err);
+          return next(setError(err));
         });
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
 exports.postLogout = (req, res, next) => {
   req.session.isLoggedIn = false;
   req.session.destroy((err) => {
-    console.log(err);
+    return next(setError(err));
     res.redirect("/");
   });
 };
@@ -241,7 +248,7 @@ exports.postSignUp = (req, res, next) => {
       console.log("The account has been successfully created!");
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
@@ -249,7 +256,7 @@ exports.postResetPassword = (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
     console.log("crypto");
     if (err) {
-      console.log(err);
+      return next(setError(err));
       res.redirect("/reset-password");
     }
     const token = buffer.toString("hex");
@@ -278,7 +285,7 @@ exports.postResetPassword = (req, res, next) => {
         });
       })
       .catch((err) => {
-        console.log(err);
+        return next(setError(err));
       });
   });
 };
@@ -305,6 +312,6 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect("/");
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
