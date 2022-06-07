@@ -1,8 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 // import needed classes
 const Product = require("../models/product");
 
 const { validationResult } = require("express-validator");
+
+const setError = (err) => {
+  const error = new Error(err);
+  error.httpStatusCode = 500;
+  return error;
+};
 
 exports.getAddProduct = (req, res, next) => {
   res.render("./admin/edit-product", {
@@ -28,7 +34,7 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
@@ -56,7 +62,7 @@ exports.getEditProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
@@ -76,7 +82,7 @@ exports.postAddProduct = (req, res, next) => {
         price: reqBody.price,
         description: reqBody.description,
         imageUrl: reqBody.imageUrl,
-        _id: reqBody.productId
+        _id: reqBody.productId,
       },
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
@@ -84,7 +90,6 @@ exports.postAddProduct = (req, res, next) => {
   }
 
   const product = new Product({
-    _id: mongoose.Types.ObjectId('628d877964391c5ee2f4cae9'),
     title: reqBody.title,
     price: reqBody.price,
     description: reqBody.description,
@@ -99,7 +104,7 @@ exports.postAddProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      res.redirect('/500');
+      return next(setError(err));
     });
 };
 
@@ -120,7 +125,7 @@ exports.postEditProduct = (req, res, next) => {
         price: reqBody.price,
         description: reqBody.description,
         imageUrl: reqBody.imageUrl,
-        _id: productId
+        _id: productId,
       },
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),
@@ -142,7 +147,7 @@ exports.postEditProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
 
@@ -157,6 +162,6 @@ exports.postDeleteProduct = (req, res, next) => {
       res.redirect("/admin/products");
     })
     .catch((err) => {
-      console.log(err);
+      return next(setError(err));
     });
 };
